@@ -14,7 +14,7 @@ typedef struct central_store{
 }store;
 
 typedef struct my_player{
-    char ID[3];
+    int ID;
     char name[20];
     int lives;
     int hunger;
@@ -55,7 +55,7 @@ void parse_file(char *line,player myplayer[]){
     next[0] = '\0';
     next++;
 
-    strcpy(myplayer->ID, line);
+    myplayer->ID=atoi(line);
     line = next;
 
     next = strchr(line, ',');
@@ -96,7 +96,6 @@ void parse_file(char *line,player myplayer[]){
     myplayer->stamina=atoi(line);
     line = next;
 
-
     myplayer->defence=atoi(line);
     line = next;
 }
@@ -115,7 +114,7 @@ int nacitaj_default_config(int nacitany_pocet_hracov,player myplayer[]){
     LoadFromFileDefault(fdefault,myplayer,nacitany_pocet_hracov);
     printf("nacital som %d\n",nacitany_pocet_hracov);
     for (int i = 0; i <nacitany_pocet_hracov; ++i) {
-        printf("%s ",myplayer[i].ID);
+        printf("%d ",myplayer[i].ID);
         printf("%s ",myplayer[i].name);
         printf("%d ",myplayer[i].lives);
         printf("%d ",myplayer[i].hunger);
@@ -124,51 +123,57 @@ int nacitaj_default_config(int nacitany_pocet_hracov,player myplayer[]){
         printf("%d ",myplayer[i].stamina);
         printf("%d \n",myplayer[i].defence);
     }
-
+    fflush(fdefault);
     fclose(fdefault);
 }
 
 int main() {
 
-    store* sklad;
-    player* myplayer;
-    WOLF* thewolf;
+    store *sklad;
+    player *myplayer;
+    WOLF *thewolf;
     int volba_hl_menu;
-    int pocet_hracov_nova_hra=0;
-
+    int pocet_hracov_nova_hra = 0;
+    int chcemhrat = 1;
     uvod();
 
-    menu(&volba_hl_menu);
-    if (volba_hl_menu>5){
-        printf("Zadal si zlu polozku skus este raz:\n");
+    while (chcemhrat) {
         menu(&volba_hl_menu);
-    } else{
-        switch (volba_hl_menu){
-            case 1:     //nova hra
-                printf("zadaj kolko hracov chces nacitat v rozmedzi od 1 po 10\n");
-                scanf("%d",&pocet_hracov_nova_hra);
-                if (pocet_hracov_nova_hra<1&&pocet_hracov_nova_hra>10){
-                    printf("zadal si zly pocet hracov skus este raz\n");
+        if (volba_hl_menu > 6) {
+            printf("Zadal si zlu polozku skus este raz:\n");
+            menu(&volba_hl_menu);
+        } else {
+            switch (volba_hl_menu) {
+                case 1:     //nova hra
                     printf("zadaj kolko hracov chces nacitat v rozmedzi od 1 po 10\n");
-                    scanf("%d",&pocet_hracov_nova_hra);
-                } else {
-                    myplayer = (player *) calloc(pocet_hracov_nova_hra, sizeof(player));
-                    nacitaj_default_config(pocet_hracov_nova_hra,myplayer);
-                }
+                    scanf("%d", &pocet_hracov_nova_hra);
+                    if (pocet_hracov_nova_hra < 1 && pocet_hracov_nova_hra > 10) {
+                        printf("zadal si zly pocet hracov skus este raz\n");
+                        printf("zadaj kolko hracov chces nacitat v rozmedzi od 1 po 10\n");
+                        scanf("%d", &pocet_hracov_nova_hra);
+                    } else {
+                        myplayer = calloc(pocet_hracov_nova_hra + 2, sizeof(player));
+                        nacitaj_default_config(pocet_hracov_nova_hra, myplayer);
+                    }
 
-                break;
-            case 2:     //Nacitat hru
+                    break;
+                case 2:     //Nacitat hru
 
-                break;
-            case 3:     //Ulozit hru
+                    break;
+                case 3:     //Ulozit hru
 
-                break;
-            case 4:     //vypis hracov
+                    break;
+                case 4:     //vypis hracov
 
-                break;
-            case 5:     //sprav akciu
+                    break;
+                case 5:     //sprav akciu
 
-                break;
+                    break;
+                case 6:
+                    chcemhrat = 0;
+                    break;
+
+            }
         }
     }
 
