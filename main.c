@@ -102,6 +102,31 @@ void parse_file(char *line,player myplayer[]){
     line = next;
 }
 
+int nacitaj_saved_sklad(store sklad[]){
+
+    int nacitany_pocet_hracov;
+    FILE *fsklad;
+    fsklad=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/saveMytstore.txt","r");
+    if (fsklad==NULL){
+        printf("Subor s defaultnym nastavenim store sa nepodarilo otvorit");
+        return NULL;
+    }
+    nacitany_pocet_hracov=numOFrows(fsklad);
+    rewind(fsklad);
+    LoadFromFileSavedSklad(fsklad,sklad,nacitany_pocet_hracov);
+    printf("nacital som %d\n",nacitany_pocet_hracov);
+    for (int i = 0; i <nacitany_pocet_hracov; ++i) {
+        printf("%d ",sklad[i].jedlo);
+        printf("%d ",sklad[i].pivo);
+        printf("%d ",sklad[i].ruda);
+        printf("%d ",sklad[i].mince);
+        printf("%d ",sklad[i].vodka);
+        printf("%d\n",sklad[i].palenka);
+    }
+    fflush(fsklad);
+    fclose(fsklad);
+}
+
 int nacitaj_default_config(int nacitany_pocet_hracov,player myplayer[]){
 
 
@@ -130,14 +155,14 @@ int nacitaj_default_config(int nacitany_pocet_hracov,player myplayer[]){
 
 int nacitaj_default_sklad(int nacitany_pocet_hracov,store sklad[]){
 
-    FILE *fdefault;
-    fdefault=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/defaultstore.txt","r");
-    if (fdefault==NULL){
+    FILE *fstore;
+    fstore=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/defaultstore.txt","r");
+    if (fstore==NULL){
         printf("Subor s defaultnym nastavenim store sa nepodarilo otvorit");
         return NULL;
     }
-    rewind(fdefault);
-    LoadFromFileDefaultSklad(fdefault,sklad,nacitany_pocet_hracov);
+    rewind(fstore);
+    LoadFromFileDefaultSklad(fstore,sklad,nacitany_pocet_hracov);
     printf("nacital som %d\n",nacitany_pocet_hracov);
     for (int i = 0; i <nacitany_pocet_hracov; ++i) {
         printf("%d ",sklad[i].jedlo);
@@ -147,95 +172,11 @@ int nacitaj_default_sklad(int nacitany_pocet_hracov,store sklad[]){
         printf("%d ",sklad[i].vodka);
         printf("%d\n",sklad[i].palenka);
     }
-    fflush(fdefault);
-    fclose(fdefault);
+    fflush(fstore);
+    fclose(fstore);
 }
 
-void parse_file_sklad(char *line,store sklad[]){
-    //vyuzivame strchr - najde najblizsi vyskyt znaku v retazci
-    char* next = strchr(line, ',');
-
-    next[0] = '\0';
-    next++;
-
-    sklad->jedlo=atoi(line);
-    line = next;
-
-    next = strchr(line, ',');
-    next[0] = '\0';
-    next++;
-
-    sklad->pivo=atoi(line);
-    line = next;
-    next = strchr(line, ',');
-
-    next[0] = '\0';
-    next++;
-
-    sklad->ruda=atoi(line);
-    line = next;
-    next = strchr(line, ',');
-    next[0] = '\0';
-    next++;
-
-    sklad->mince=atoi(line);
-    line = next;
-    next = strchr(line, ',');
-    next[0] = '\0';
-    next++;
-
-    sklad->vodka=atoi(line);
-    line = next;
-    next = strchr(line, ',');
-    next[0] = '\0';
-    next++;
-
-    sklad->palenka=atoi(line);
-    line = next;
-}
-
-void LoadFromFileDefaultSklad(FILE* fdefault, store sklad[],int nacitany_pocet_hracov){
-
-    char buffer[1000];
-
-
-    for (int i = 0; i <nacitany_pocet_hracov; ++i) {
-        fgets(buffer, 1000, fdefault);
-        //puts(buffer);
-        parse_file_sklad(buffer, sklad);
-        sklad++;
-    }
-}
-
-void commandpromt(){
-
-}
-
-int savegame(player myplayer[], int pocet_hracov_nova_hra) {
-
-    char *text = calloc(1, 1), buffer[BUFFERSIZE];
-    printf("\nZadajte meno suboru:\t");
-    getchar();
-    fgets(buffer, BUFFERSIZE, stdin);
-    text = realloc(text, strlen(text) + 1 + strlen(buffer));
-    if (!text)
-       strcat(text, buffer);
-    printf("Zadal si meno suboru %s\n", buffer);
-
-    FILE *SaveGame=fopen(buffer,"w");
-
-    for (int i = 0; i <pocet_hracov_nova_hra; ++i) {
-        fprintf(SaveGame,"%d,%s,%d,%d,%d,%d,%d,%d\n",myplayer[i].ID,myplayer[i].name,myplayer[i].lives,myplayer[i].hunger,
-                myplayer[i].energy,myplayer[i].power,myplayer[i].stamina,myplayer[i].defence);
-    }
-
-    fflush(SaveGame);
-    fclose(SaveGame);
-
-
-}
-
-void vlastnahra(player myplayer[]){
+void nacitajvlastnuhru(player myplayer[]){
 
     int nacitany_pocet_hracov;
     char *text = calloc(1, 1), buffer[BUFFERSIZE];
@@ -276,6 +217,146 @@ void vlastnahra(player myplayer[]){
 
 }
 
+void nacitajvlastnehohraca(int *vlastnyhrac){
+
+    int buffer;
+    FILE *fhrac;
+    fhrac=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/saveMYgamer.txt","r");
+    if (fhrac==NULL){
+        printf("Subor s defaultnym nastavenim hraca sa nepodarilo otvorit");
+    }
+    rewind(fhrac);
+
+    fscanf (fhrac, "%d", &buffer);
+    printf ("%d ", buffer);
+
+
+    fflush(fhrac);
+    fclose(fhrac);
+
+}
+
+void parse_file_sklad(char *line,store sklad[]){
+    //vyuzivame strchr - najde najblizsi vyskyt znaku v retazci
+    char* next = strchr(line, ',');
+
+    next[0] = '\0';
+    next++;
+
+    sklad->jedlo=atoi(line);
+    line = next;
+
+    next = strchr(line, ',');
+    next[0] = '\0';
+    next++;
+
+    sklad->pivo=atoi(line);
+    line = next;
+    next = strchr(line, ',');
+
+    next[0] = '\0';
+    next++;
+
+    sklad->ruda=atoi(line);
+    line = next;
+    next = strchr(line, ',');
+    next[0] = '\0';
+    next++;
+
+    sklad->mince=atoi(line);
+    line = next;
+    next = strchr(line, ',');
+    next[0] = '\0';
+    next++;
+
+    sklad->vodka=atoi(line);
+    line = next;
+
+    sklad->palenka=atoi(line);
+    line = next;
+}
+
+void LoadFromFileDefaultSklad(FILE* fdefault, store sklad[],int nacitany_pocet_hracov){
+
+    char buffer[1000];
+
+    for (int i = 0; i <nacitany_pocet_hracov; ++i) {
+        fgets(buffer, 1000, fdefault);
+        //puts(buffer);
+        parse_file_sklad(buffer, sklad);
+        sklad++;
+    }
+}
+
+void LoadFromFileSavedSklad(FILE* fsklad,store sklad[],int nacitany_pocet_hracov){
+
+    char buffer[1000];
+
+    for (int i = 0; i <nacitany_pocet_hracov; ++i) {
+        fgets(buffer, 1000, fsklad);
+        //puts(buffer);
+        parse_file_sklad(buffer, sklad);
+        sklad++;
+    }
+}
+
+void commandpromt(){
+
+}
+
+void savegame(player myplayer[], int pocet_hracov_nova_hra) {
+
+    char *text = calloc(1, 1), buffer[BUFFERSIZE];
+    printf("\nZadajte meno suboru:\t");
+    getchar();
+    fgets(buffer, BUFFERSIZE, stdin);
+    text = realloc(text, strlen(text) + 1 + strlen(buffer));
+    if (!text)
+       strcat(text, buffer);
+    printf("Zadal si meno suboru %s\n", buffer);
+
+    FILE *SaveGame=fopen(buffer,"w");
+
+    for (int i = 0; i <pocet_hracov_nova_hra; ++i) {
+        fprintf(SaveGame,"%d,%s,%d,%d,%d,%d,%d,%d\n",myplayer[i].ID,myplayer[i].name,myplayer[i].lives,myplayer[i].hunger,
+                myplayer[i].energy,myplayer[i].power,myplayer[i].stamina,myplayer[i].defence);
+    }
+
+    fflush(SaveGame);
+    fclose(SaveGame);
+
+
+}
+
+void savegamesklad(store sklad[],int pocet_hracov_nova_hra){
+
+    FILE *SaveGame;
+    SaveGame=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/saveMYstore.txt","w");
+    if (SaveGame==NULL){
+        printf("Subor s defaultnym nastavenim sa nepodarilo otvorit");
+    }
+    for (int i = 0; i <pocet_hracov_nova_hra; ++i) {
+        fprintf(SaveGame,"%d,%d,%d,%d,%d,%d\n",sklad[i].jedlo,sklad[i].pivo,sklad[i].ruda,sklad[i].mince,
+                sklad[i].vodka,sklad[i].palenka);
+    }
+
+    fflush(SaveGame);
+    fclose(SaveGame);
+}
+
+void savegameconfighrac(int ktorehohracachcem){
+    FILE *SaveGame;
+    SaveGame=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/saveMYgamer.txt","w");
+    if (SaveGame==NULL){
+        printf("Subor s defaultnym nastavenim sa nepodarilo otvorit");
+    } else{
+    fprintf(SaveGame,"%d\n",ktorehohracachcem);
+    }
+
+    fflush(SaveGame);
+    fclose(SaveGame);
+}
+
 int numOFrows(FILE *loadedfile){
     char c;
     int count = 0;
@@ -288,7 +369,7 @@ int numOFrows(FILE *loadedfile){
 }
 
 void vypishracov(player myplayer[],int pocet_hracov_nova_hra, int chcem_tohto_hraca){
-
+    printf("\nToto su vsetci hraci\n");
     for (int i = 0; i <pocet_hracov_nova_hra; ++i) {
         printf("%d ",myplayer[i].ID);
         printf("%s ",myplayer[i].name);
@@ -313,6 +394,7 @@ void vypishracov(player myplayer[],int pocet_hracov_nova_hra, int chcem_tohto_hr
 }
 
 void vypisskladu(store sklad[], int pocet_hracov_nova_hra, int chcem_tohto_hraca){
+    printf("\nToto su sklady vsetkych hracov\n");
     for (int i = 0; i <pocet_hracov_nova_hra; ++i) {
         printf("%d ",sklad[i].jedlo);
         printf("%d ",sklad[i].pivo);
@@ -322,6 +404,7 @@ void vypisskladu(store sklad[], int pocet_hracov_nova_hra, int chcem_tohto_hraca
         printf("%d\n",sklad[i].palenka);
     }
 
+    printf("\nToto su suroviny mojho hraca\n");
     printf("%d ",sklad[chcem_tohto_hraca].jedlo);
     printf("%d ",sklad[chcem_tohto_hraca].pivo);
     printf("%d ",sklad[chcem_tohto_hraca].ruda);
@@ -329,6 +412,7 @@ void vypisskladu(store sklad[], int pocet_hracov_nova_hra, int chcem_tohto_hraca
     printf("%d ",sklad[chcem_tohto_hraca].vodka);
     printf("%d\n",sklad[chcem_tohto_hraca].palenka);
 }
+
 void mining(player myplayer[],int chcem_vlastneho_hraca){
     printf("\nIdeme kopat\n");
     if (myplayer[chcem_vlastneho_hraca].power>20&&myplayer[chcem_vlastneho_hraca].energy>20){
@@ -418,17 +502,22 @@ int main() {
                         nacitaj_default_config(pocet_hracov_nova_hra, myplayer);
                         printf("\nZadaj ktoreho hraca chces.\n");
                         scanf("%d",&chcem_tohto_hraca);
+                        chcem_tohto_hraca=chcem_tohto_hraca-1;
                     }
                     break;
                 case 2:     //Nacitat hru
-                    vlastnahra(myplayer);
+                    nacitajvlastnuhru(myplayer);
+                    nacitaj_saved_sklad(sklad);
+                    nacitajvlastnehohraca(&chcem_tohto_hraca);
                     break;
                 case 3:     //Ulozit hru
                     savegame(myplayer,pocet_hracov_nova_hra);
+                    savegamesklad(sklad,pocet_hracov_nova_hra);
+                    savegameconfighrac(chcem_tohto_hraca);
                     break;
                 case 4:     //vypis hracov
                     vypishracov(myplayer,pocet_hracov_nova_hra,chcem_tohto_hraca);
-                    vypisskladu(myplayer,pocet_hracov_nova_hra,chcem_tohto_hraca);
+                    vypisskladu(sklad,pocet_hracov_nova_hra,chcem_tohto_hraca);
                     break;
                 case 5:     //sprav akciu
                     thewolf = calloc(5, sizeof(WOLF));
@@ -446,7 +535,7 @@ int main() {
             }
         }
     }
-
+    free(sklad);
     free(myplayer);
     return 0;
 }
