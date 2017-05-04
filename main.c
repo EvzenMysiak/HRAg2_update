@@ -114,6 +114,7 @@ int nacitaj_saved_sklad(store sklad[]){
     nacitany_pocet_hracov=numOFrows(fsklad);
     rewind(fsklad);
     LoadFromFileSavedSklad(fsklad,sklad,nacitany_pocet_hracov);
+
     printf("nacital som %d\n",nacitany_pocet_hracov);
     for (int i = 0; i <nacitany_pocet_hracov; ++i) {
         printf("%d ",sklad[i].jedlo);
@@ -176,7 +177,7 @@ int nacitaj_default_sklad(int nacitany_pocet_hracov,store sklad[]){
     fclose(fstore);
 }
 
-void nacitajvlastnuhru(player myplayer[]){
+void nacitajvlastnuhru(player myplayer[],int *nacitanyhraci){
 
     int nacitany_pocet_hracov;
     char *text = calloc(1, 1), buffer[BUFFERSIZE];
@@ -196,8 +197,9 @@ void nacitajvlastnuhru(player myplayer[]){
         printf("Subor s defaultnym nastavenim sa nepodarilo otvorit");
     }
     nacitany_pocet_hracov=numOFrows(loadedfile);
+    *nacitanyhraci=nacitany_pocet_hracov;
     rewind(loadedfile);
-    myplayer=calloc(nacitany_pocet_hracov+1, sizeof(player));
+    //myplayer=calloc(nacitany_pocet_hracov+1, sizeof(player));
     LoadFromFileDefault(loadedfile,myplayer,nacitany_pocet_hracov);
     printf("nacital som %d\n",nacitany_pocet_hracov);
 
@@ -229,7 +231,7 @@ void nacitajvlastnehohraca(int *vlastnyhrac){
 
     fscanf (fhrac, "%d", &buffer);
     printf ("%d ", buffer);
-
+    *vlastnyhrac=buffer;
 
     fflush(fhrac);
     fclose(fhrac);
@@ -413,16 +415,24 @@ void vypisskladu(store sklad[], int pocet_hracov_nova_hra, int chcem_tohto_hraca
     printf("%d\n",sklad[chcem_tohto_hraca].palenka);
 }
 
-void mining(player myplayer[],int chcem_vlastneho_hraca){
+void mining(player myplayer[],store sklad[],int chcem_vlastneho_hraca){
     printf("\nIdeme kopat\n");
-    if (myplayer[chcem_vlastneho_hraca].power>20&&myplayer[chcem_vlastneho_hraca].energy>20){
-
-    }else{
-
-    }
+    if (myplayer[chcem_vlastneho_hraca].energy>5&&myplayer[chcem_vlastneho_hraca].hunger<95) {
+        if (myplayer[chcem_vlastneho_hraca].hunger > 20 && myplayer[chcem_vlastneho_hraca].energy > 20) {
+            myplayer[chcem_vlastneho_hraca].hunger += 5;
+            myplayer[chcem_vlastneho_hraca].energy -= 5;
+            sklad[chcem_vlastneho_hraca].ruda += 10;
+            printf("\nNaskrabal si 10ks rudy;");
+        } else {
+            myplayer[chcem_vlastneho_hraca].hunger += 5;
+            myplayer[chcem_vlastneho_hraca].energy -= 5;
+            sklad[chcem_vlastneho_hraca].ruda += 5;
+            printf("\nNaskrabal si 5ks rudy\n");
+        }
+    } else printf("\nNemas dostatok energie alebo si prilis hladny na to aby si tazil\nskus to ked naberies znovu silu\n");
 }
 
-void gameOFthrons(player myplayer[],WOLF thewolf[],int pocet_hracov_nova_hra, int chcem_vlastneho_hraca){
+void gameOFtrons(player myplayer[],store sklad[],WOLF thewolf[],int pocet_hracov_nova_hra, int chcem_vlastneho_hraca){
     int volba;
     int idemdalej=1;
     printf("\nVitaj\nvyber si z ponuky co by si chcel spravit\n\t");
@@ -432,7 +442,7 @@ void gameOFthrons(player myplayer[],WOLF thewolf[],int pocet_hracov_nova_hra, in
 
         switch (volba) {
             case 1:
-                mining(myplayer,chcem_vlastneho_hraca);
+                mining(myplayer,sklad,chcem_vlastneho_hraca);
                 break;
             case 2:
                 break;
@@ -478,6 +488,7 @@ int main() {
     int chcemhrat = 1;
     int chcem_tohto_hraca;
     int newgame=0;
+    int prvykrat=0;
     uvod();
 
     while (chcemhrat) {
@@ -488,6 +499,7 @@ int main() {
         } else {
             switch (volba_hl_menu) {
                 case 1:     //nova hra
+                    prvykrat=1;
                     printf("zadaj kolko hracov chces nacitat v rozmedzi od 1 po 10\n");
                     scanf("%d", &pocet_hracov_nova_hra);
                     if (pocet_hracov_nova_hra < 1 && pocet_hracov_nova_hra > 10) {
@@ -506,7 +518,12 @@ int main() {
                     }
                     break;
                 case 2:     //Nacitat hru
-                    nacitajvlastnuhru(myplayer);
+
+                    if(prvykrat==0){
+                        myplayer=calloc(10+1, sizeof(player));
+                        sklad =calloc(10+2, sizeof(store));
+                    }
+                    nacitajvlastnuhru(myplayer,&pocet_hracov_nova_hra);
                     nacitaj_saved_sklad(sklad);
                     nacitajvlastnehohraca(&chcem_tohto_hraca);
                     break;
@@ -522,7 +539,7 @@ int main() {
                 case 5:     //sprav akciu
                     thewolf = calloc(5, sizeof(WOLF));
                     generujvlka(thewolf);
-                    gameOFthrons(myplayer,thewolf,pocet_hracov_nova_hra,chcem_tohto_hraca);
+                    gameOFtrons(myplayer,sklad,thewolf,pocet_hracov_nova_hra,chcem_tohto_hraca);
                     free(thewolf);
                     break;
                 case 6:     //commandpromt
@@ -539,4 +556,5 @@ int main() {
     free(myplayer);
     return 0;
 }
-//TODO opravit funkcionalitu printovania a nacitavania sklad to viditelne pokazil
+
+//TODO gameoftrons
