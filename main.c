@@ -432,12 +432,39 @@ void mining(player myplayer[],store sklad[],int chcem_vlastneho_hraca){
     } else printf("\nNemas dostatok energie alebo si prilis hladny na to aby si tazil\nskus to ked naberies znovu silu\n");
 }
 
+void fight(player myplayer[],WOLF thewolf[],int chcem_vlastneho_hraca){
+    int randomcislo=rand()%5+1;
+    printf("\nIdeme bojovat s vlkmi\n");
+    if (myplayer[chcem_vlastneho_hraca].energy<10&&myplayer[chcem_vlastneho_hraca].lives<1){
+        printf("\nNiesi schopny bojovat\nskus to inokedy\n");
+    } else {
+        if (myplayer[chcem_vlastneho_hraca].power>thewolf[randomcislo].sila&&myplayer[chcem_vlastneho_hraca].defence>
+                thewolf[randomcislo].defence){
+            printf("\nZvitazil si nad vlkom\n");
+            myplayer[chcem_vlastneho_hraca].power+=5;
+            myplayer[chcem_vlastneho_hraca].defence+=5;
+            myplayer[chcem_vlastneho_hraca].stamina+=5;
+            myplayer[chcem_vlastneho_hraca].lives+=1;
+            myplayer[chcem_vlastneho_hraca].energy-=5;
+            myplayer[chcem_vlastneho_hraca].hunger-=5;
+        } else{
+            printf("\nVlk ta porazil\n");
+            myplayer[chcem_vlastneho_hraca].power-=5;
+            myplayer[chcem_vlastneho_hraca].defence-=5;
+            myplayer[chcem_vlastneho_hraca].stamina+=5;
+            myplayer[chcem_vlastneho_hraca].lives-=1;
+            myplayer[chcem_vlastneho_hraca].energy-=5;
+            myplayer[chcem_vlastneho_hraca].hunger-=5;
+        }
+    }
+}
+
 void gameOFtrons(player myplayer[],store sklad[],WOLF thewolf[],int pocet_hracov_nova_hra, int chcem_vlastneho_hraca){
     int volba;
     int idemdalej=1;
     printf("\nVitaj\nvyber si z ponuky co by si chcel spravit\n\t");
     while (idemdalej) {
-        printf("1.\tMining\n\t2.\tBoj s pseudovlkmi\n\t3.\tRemeselnik\n\t4.\tPivovarnik\n\t5.\tOddych\n\t6.\tBack to menu");
+        printf("\t1.\tMining\n\t2.\tBoj s pseudovlkmi\n\t3.\tRemeselnik\n\t4.\tPivovarnik\n\t5.\tOddych\n\t6.\tBack to menu");
         scanf("%d", &volba);
 
         switch (volba) {
@@ -445,6 +472,7 @@ void gameOFtrons(player myplayer[],store sklad[],WOLF thewolf[],int pocet_hracov
                 mining(myplayer,sklad,chcem_vlastneho_hraca);
                 break;
             case 2:
+                fight(myplayer,thewolf,chcem_vlastneho_hraca);
                 break;
             case 3:
                 break;
