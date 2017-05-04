@@ -457,7 +457,7 @@ void fight(player myplayer[],WOLF thewolf[],int chcem_vlastneho_hraca){
 
 void remeselnik(player myplayer[],store sklad[],int chcem_vlastneho_hraca){
     printf("\nPustil si sa do remesla\n");
-    printf("\nZo skladu ti ubudne ruda a premeni sa na mince");
+    printf("\nZo skladu ti ubudne ruda a premeni sa na mince\n");
     if(myplayer[chcem_vlastneho_hraca].hunger>95||myplayer[chcem_vlastneho_hraca].energy<5){
         printf("\nKoli nedostatku energie a hladu niesi schopny pracovat\n");
         printf("HINT:chod sa posilnit do krcmy\n");
@@ -472,7 +472,7 @@ void remeselnik(player myplayer[],store sklad[],int chcem_vlastneho_hraca){
             myplayer[chcem_vlastneho_hraca].hunger-=5;
             myplayer[chcem_vlastneho_hraca].lives+=1;
             printf("Vyrobil si nieco z rudy\n");
-            if(sklad[chcem_vlastneho_hraca].pivo<1||sklad[chcem_vlastneho_hraca].palenka<1){
+            if(sklad[chcem_vlastneho_hraca].pivo<10||sklad[chcem_vlastneho_hraca].palenka<10){
                 printf("Za to ze si sikovny ti remeselnik daroval pivo a palenku\n");
                 sklad[chcem_vlastneho_hraca].pivo+=10;
                 sklad[chcem_vlastneho_hraca].palenka+=10;
@@ -704,4 +704,5 @@ int main() {
     return 0;
 }
 
-//TODO gameoftrons
+//TODO vo funkcii commandpromt zrus while aby to nerobilo sarapatu a vzdy budes moct
+//zadat len jeden prikaz a vzdy sa vratis do hlavneho menu
