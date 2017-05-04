@@ -106,7 +106,7 @@ int nacitaj_saved_sklad(store sklad[]){
 
     int nacitany_pocet_hracov;
     FILE *fsklad;
-    fsklad=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/saveMytstore.txt","r");
+    fsklad=fopen("/home/mysiak/CLionProjects/CV11/HRAg2_update/saveMYstore.txt","r");
     if (fsklad==NULL){
         printf("Subor s defaultnym nastavenim store sa nepodarilo otvorit");
         return NULL;
