@@ -302,10 +302,6 @@ void LoadFromFileSavedSklad(FILE* fsklad,store sklad[],int nacitany_pocet_hracov
     }
 }
 
-void commandpromt(){
-
-}
-
 void savegame(player myplayer[], int pocet_hracov_nova_hra) {
 
     char *text = calloc(1, 1), buffer[BUFFERSIZE];
@@ -459,6 +455,71 @@ void fight(player myplayer[],WOLF thewolf[],int chcem_vlastneho_hraca){
     }
 }
 
+void remeselnik(player myplayer[],store sklad[],int chcem_vlastneho_hraca){
+    printf("\nPustil si sa do remesla\n");
+    printf("\nZo skladu ti ubudne ruda a premeni sa na mince");
+    if(myplayer[chcem_vlastneho_hraca].hunger>95||myplayer[chcem_vlastneho_hraca].energy<5){
+        printf("\nKoli nedostatku energie a hladu niesi schopny pracovat\n");
+        printf("HINT:chod sa posilnit do krcmy\n");
+    } else{
+        if(sklad[chcem_vlastneho_hraca].ruda<10){
+            printf("!!NEMAS DOSTATOK RUDY!!\n");
+            printf("HINT: na pracovanie s rudov potrebujes aspon 10ks rudy a ty mas len %d\n",sklad[chcem_vlastneho_hraca].ruda);
+        }else{
+            sklad[chcem_vlastneho_hraca].ruda-=10;
+            sklad[chcem_vlastneho_hraca].mince+=20;
+            myplayer[chcem_vlastneho_hraca].energy-=5;
+            myplayer[chcem_vlastneho_hraca].hunger-=5;
+            myplayer[chcem_vlastneho_hraca].lives+=1;
+            printf("Vyrobil si nieco z rudy\n");
+            if(sklad[chcem_vlastneho_hraca].pivo<1||sklad[chcem_vlastneho_hraca].palenka<1){
+                printf("Za to ze si sikovny ti remeselnik daroval pivo a palenku\n");
+                sklad[chcem_vlastneho_hraca].pivo+=10;
+                sklad[chcem_vlastneho_hraca].palenka+=10;
+                sklad[chcem_vlastneho_hraca].mince-=5;
+            }
+        }
+    }
+}
+
+void pivovarnik(player myplayer[],store sklad[],int chcem_vlastne_hraca){
+    printf("\nKonecne nejaka poriadna praca\nPodme teda varit pivko\n");
+    if (sklad[chcem_vlastne_hraca].pivo<10||sklad[chcem_vlastne_hraca].palenka<10){
+        printf("\nNemas dostatok surovin na vyrobu a pripravu piva\n");
+        printf("\nHINT: Zastav sa u remeselnika mozno ti pomoze\n");
+    } else{
+        printf("Vyrobil si si nejake pivo\n");
+        myplayer[chcem_vlastne_hraca].lives+=10;
+        myplayer[chcem_vlastne_hraca].hunger+=20;
+        myplayer[chcem_vlastne_hraca].energy+=20;
+        myplayer[chcem_vlastne_hraca].power+=5;
+        sklad[chcem_vlastne_hraca].palenka-=10;
+        sklad[chcem_vlastne_hraca].pivo-=10;
+    }
+}
+
+void oddych(player myplayer[],int chcem_vlastneho_hraca){
+    int doplnenie;
+    printf("\nPrisiel cas na to aby si si oddychol\n");
+    printf("Oddych ti dobije zopar funkcii aby si mohol dalej hrat\n");
+    doplnenie=myplayer[chcem_vlastneho_hraca].energy;
+    if (doplnenie>100){
+        printf("nieje ti treba doplnit energiu\n");
+    } else {
+        doplnenie = 100 - doplnenie;
+        myplayer[chcem_vlastneho_hraca].energy+=doplnenie;
+        printf("doplniko sa ti %d energie\n",doplnenie);
+     }
+    doplnenie=myplayer[chcem_vlastneho_hraca].lives;
+    if (doplnenie>100){
+        printf("nieje ti treba doplnit zivoty\n");
+    } else {
+        doplnenie = 100 - doplnenie;
+        myplayer[chcem_vlastneho_hraca].lives+=doplnenie;
+        printf("doplniko sa ti %d zivotov\n",doplnenie);
+    }
+}
+
 void gameOFtrons(player myplayer[],store sklad[],WOLF thewolf[],int pocet_hracov_nova_hra, int chcem_vlastneho_hraca){
     int volba;
     int idemdalej=1;
@@ -475,10 +536,13 @@ void gameOFtrons(player myplayer[],store sklad[],WOLF thewolf[],int pocet_hracov
                 fight(myplayer,thewolf,chcem_vlastneho_hraca);
                 break;
             case 3:
+                remeselnik(myplayer,sklad,chcem_vlastneho_hraca);
                 break;
             case 4:
+                pivovarnik(myplayer,sklad,chcem_vlastneho_hraca);
                 break;
             case 5:
+                oddych(myplayer,chcem_vlastneho_hraca);
                 break;
             case 6:
                 idemdalej=0;
@@ -501,6 +565,57 @@ void generujvlka(WOLF thewolf[]){
         thewolf[i].sila=silaGEN;
         thewolf[i].defence=defenceGEN;
         thewolf[i].stamina=staminaGEN;
+    }
+}
+
+void commandpromt(player myplayer[],store sklad[],WOLF thewolf[],int pocet_hracov_nova_hra, int chcem_tohto_hraca){
+
+    char com[6];
+    char par[10];
+    int komandy=1;
+    int priradenie=0;
+    com[0]='\0';
+    par[0]='\0';
+    char *text = calloc(1, 1), buffer[BUFFERSIZE];
+    printf("\nprikazy:\n\tprint\n\takcia\n\tload\n\tsave\n\tquit\n");
+    printf("\nZadaj prikaz a potvrd enterom\t");
+    while(komandy) {
+        getchar();
+        fgets(buffer, BUFFERSIZE, stdin);
+        text = realloc(text, strlen(text) + 1 + strlen(buffer));
+        if (!text)
+            strcat(text, buffer);
+        sscanf(buffer, "%s %s", com, par);
+        if (strcmp(com, "print")==0) {
+            priradenie = 1;
+        } else if (strcmp(com, "akcia")==0) {
+            priradenie = 2;
+        } else if (strcmp(com, "load")==0) {
+            priradenie = 3;
+        } else if (strcmp(com, "save")==0) {
+            priradenie = 4;
+        } else if (strcmp(com, "quit")==0) {
+            priradenie = 5;
+        }else printf("zadal si zly prikaz\n");
+
+
+        switch (priradenie) {
+            case 1:
+                printf("1 %s\n",par);
+                break;
+            case 2:
+                printf("2\n");
+                break;
+            case 3:
+                printf("3\n");
+                break;
+            case 4:
+                printf("4\n");
+                break;
+            case 5:
+                komandy=0;
+                break;
+        }
     }
 }
 
@@ -571,13 +686,17 @@ int main() {
                     free(thewolf);
                     break;
                 case 6:     //commandpromt
-                    commandpromt();
+                    commandpromt(myplayer,sklad,thewolf,pocet_hracov_nova_hra,chcem_tohto_hraca);
                     break;
                 case 7:     //quit
                     chcemhrat=0;
                     break;
 
             }
+        }
+        if (myplayer[chcem_tohto_hraca].lives<1){
+            printf("Tvoj hrac zomrel\n GAME OVER\n");
+            chcemhrat=0;
         }
     }
     free(sklad);
